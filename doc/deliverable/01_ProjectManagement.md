@@ -82,7 +82,7 @@
 
 ## Gantt Chart
 
-![alt text](/participium/data/img/gantt_chart.png)
+![alt text](/data/img/gantt_chart.png)
 
 
 ---
