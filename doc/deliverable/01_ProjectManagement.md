@@ -1,7 +1,7 @@
 # Product Breakdown Structure (PBS)  
 
 | ID | Deliverable | Type | Notes |
-| ----- | ----- | ----- | ----- |s
+| ----- | ----- | ----- | ----- |
 | S1 | Back-end | Software   | Parent category for all server-side  . |
 | S1.1 | Status Management | Software  | Tracks report lifecycle: Pending Approval, Assigned, In Progress, Suspended, Rejected, Resolved. |
 | S1.2 | Authentication | Software  | Registration, email verification, login and session management for citizens and operators. |
@@ -29,6 +29,7 @@
 | D4 | User Documentation | Documentary  | Manuals, guides or help centre articles for citizens, operators and admins. |
 | D5 | Database Documentation | Documentary  | Data dictionaries, schema details and ER diagrams. |
 | D6 | Architecture & Design Documentation | Documentary  | System diagrams, component maps and technical design decisions. |
+
 
 ---
 
