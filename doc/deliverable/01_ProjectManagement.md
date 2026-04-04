@@ -64,8 +64,8 @@
 | T1.1  | Definition of business and technical specifications        | 2              | -                    | 1            | 2          | Yes           | –         |
 | T2.1  | Wireframing, user flow mapping, and visual UI design       | 3              | T1.1                 | 3            | 5          | No            | –         |
 | T2.2  | Data modeling, schema design, and relational DB setup      | 3              | T1.1                 | 3            | 5          | Yes           | –         |
-| T2.3  | Cloud infrastructure, CDN, and system architecture planning| 5              | T1.1, T2.2           | 5            | 8          | Yes           | M1        |
-| T3.1  | Core back-end setup, authentication, and API gateway routing| 12             | T2.2, T2.3           | 9            | 20         | Yes           | –         |
+| T2.3  | Cloud infrastructure, CDN, and system architecture planning| 5              | T1.1, T2.2           | 6            | 10          | Yes           | M1        |
+| T3.1  | Core back-end setup, authentication, and API gateway routing| 10             | T2.2, T2.3           | 11            | 20         | Yes           | –         |
 | T3.2  | Feature services: Geo-location, Messaging, Notifications   | 5              | T3.1                 | 21           | 25         | No            | –         |
 | T3.3  | Status management, Admin tools, Report Follow/Subscription| 3              | T3.1                 | 21           | 23         | No            | –         |
 | T3.4  | Statistics & Analytics service and CSV Export service      | 3              | T3.1                 | 21           | 23         | No            | –         |
@@ -106,11 +106,11 @@
 | R1 | Requirements poorly defined or incomplete | Requirements | 3 | 4 | 12 | High | Structured stakeholder interviews; formal sign-off before WP2 begins; change request process for post-approval modifications. |
 | R2 | Database schema changes mid-project | Technical | 3 | 4 | 12 | High | Freeze schema at end of T2.2; any change requires PM approval and impact assessment; use versioned migrations. |
 | R3 | Cloud provider availability or cost overrun | Infrastructure | 2 | 3 | 6 | Medium | Define multi-region fallback; configure budget alerts from day one; evaluate reserved vs on-demand pricing. |
-| R4 | OpenStreetMap API rate limits or downtime | Technical | 2 | 4 | 8 | High | Cache geo-location responses server-side; configure fallback tile server; implement graceful degradation with manual coordinate entry. |
-| R5 | Authentication security vulnerability | Security | 2 | 5 | 10 | Critical | Follow OWASP Top 10 checklist; conduct penetration test before go-live; enforce HTTPS, rate limiting, and token expiry. |
+| R4 | OpenStreetMap API rate limits or downtime | Technical | 2 | 4 | 8 | Medium | Cache geo-location responses server-side; configure fallback tile server; implement graceful degradation with manual coordinate entry. |
+| R5 | Authentication security vulnerability | Security | 2 | 5 | 10 | Medium | Follow OWASP Top 10 checklist; conduct penetration test before go-live; enforce HTTPS, rate limiting, and token expiry. |
 | R6 | Front-end performance on slow networks | Performance | 3 | 3 | 9 | Medium | CDN and lazy-loading from design phase; Lighthouse performance audits run automatically in CI pipeline. |
 | R7 | Statistics & Analytics query performance | Performance | 2 | 3 | 6 | Medium | Design appropriate indexes during T2.2; paginate heavy queries; consider materialized views for top-reporter statistics. |
 | R8 | Incomplete test coverage before deployment | Quality | 3 | 4 | 12 | High | Enforce minimum 80% code coverage gate in CI; automated regression suite; manual exploratory testing for edge cases. |
-| R9 | Backup restoration failure | Infrastructure | 2 | 5 | 10 | Critical | Monthly full-restore drills on staging; dual-region backup storage; RTO defined and tested in T4.2. |
+| R9 | Backup restoration failure | Infrastructure | 2 | 5 | 10 | Medium | Monthly full-restore drills on staging; dual-region backup storage; RTO defined and tested in T4.2. |
 | R10 | SMTP deliverability issues (emails in spam) | Operations | 2 | 3 | 6 | Medium | Configure SPF, DKIM, DMARC records; warm up sending domain; pre-launch tests with major email providers. |
-| R11 | Production release rollback needed | Deployment | 2 | 4 | 8 | High | Blue-green deployment strategy; automated smoke tests post-release; rollback procedure documented and tested in staging. |
+| R11 | Production release rollback needed | Deployment | 2 | 4 | 8 | Medium | Blue-green deployment strategy; automated smoke tests post-release; rollback procedure documented and tested in staging. |
