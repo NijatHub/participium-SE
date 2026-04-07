@@ -1,0 +1,359 @@
+{
+  "version": "3.0.0",
+  "type": "DeploymentDiagram",
+  "size": {
+    "width": 2020,
+    "height": 800
+  },
+  "interactive": {
+    "elements": {},
+    "relationships": {}
+  },
+  "elements": {
+    "05f32be8-2a60-4e11-a70b-193329617510": {
+      "id": "05f32be8-2a60-4e11-a70b-193329617510",
+      "name": "Client ",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": 690,
+        "y": -380,
+        "width": 290,
+        "height": 180
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "6371afd8-10a0-4569-99dc-5ce3dd6fe830": {
+      "id": "6371afd8-10a0-4569-99dc-5ce3dd6fe830",
+      "name": "Browser",
+      "type": "DeploymentComponent",
+      "owner": "05f32be8-2a60-4e11-a70b-193329617510",
+      "bounds": {
+        "x": 760,
+        "y": -310,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "64b31bd3-6ef9-49aa-9be1-3959fcfe98da": {
+      "id": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da",
+      "name": "Application server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -370,
+        "y": -380,
+        "width": 810,
+        "height": 420
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "2ef05e83-80ab-4a98-b05c-3444a7db58b0": {
+      "id": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "name": "Back-end",
+      "type": "DeploymentComponent",
+      "owner": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da",
+      "bounds": {
+        "x": -290,
+        "y": -310,
+        "width": 650,
+        "height": 320
+      },
+      "displayStereotype": false
+    },
+    "c8612580-24c8-42b7-915a-b8dd49fb0bea": {
+      "id": "c8612580-24c8-42b7-915a-b8dd49fb0bea",
+      "name": "Report",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -260,
+        "y": -290,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "a0954e9c-259f-4d4b-8deb-c7f6695090f8": {
+      "id": "a0954e9c-259f-4d4b-8deb-c7f6695090f8",
+      "name": "Notification",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -50,
+        "y": -290,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "a89c9b20-ece1-4214-976a-cca019055fdb": {
+      "id": "a89c9b20-ece1-4214-976a-cca019055fdb",
+      "name": "DIrect messaging",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": 150,
+        "y": -290,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "beed4c9e-ff50-4298-8a92-f836530c0dd2": {
+      "id": "beed4c9e-ff50-4298-8a92-f836530c0dd2",
+      "name": "Auth",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -260,
+        "y": -130,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "e4be844c-f15c-4609-8635-f705fe9ff222": {
+      "id": "e4be844c-f15c-4609-8635-f705fe9ff222",
+      "name": "Analytics",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -50,
+        "y": -130,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "4fd8f796-2834-4746-98f8-c1aeca60f629": {
+      "id": "4fd8f796-2834-4746-98f8-c1aeca60f629",
+      "name": "Web app",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": 160,
+        "y": -130,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "fae2032e-14b2-4505-918f-7aa076bef158": {
+      "id": "fae2032e-14b2-4505-918f-7aa076bef158",
+      "name": "Database server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": 700,
+        "y": -170,
+        "width": 290,
+        "height": 210
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "2a5c9248-7854-4c6b-aef7-668d061316c3": {
+      "id": "2a5c9248-7854-4c6b-aef7-668d061316c3",
+      "name": "Component",
+      "type": "DeploymentComponent",
+      "owner": "fae2032e-14b2-4505-918f-7aa076bef158",
+      "bounds": {
+        "x": 770,
+        "y": -90,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": true
+    },
+    "df33bc27-2eb5-49ec-aec0-680e89ba3059": {
+      "id": "df33bc27-2eb5-49ec-aec0-680e89ba3059",
+      "name": "OpenStreetMap",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -750,
+        "y": -360,
+        "width": 160,
+        "height": 100
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "98e7cc2c-fe7e-4e42-bc08-a246f6571e62": {
+      "id": "98e7cc2c-fe7e-4e42-bc08-a246f6571e62",
+      "name": "Email service",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -750,
+        "y": -200,
+        "width": 160,
+        "height": 100
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    }
+  },
+  "relationships": {
+    "c708b8fc-8311-4b57-9394-297aeefcaffc": {
+      "id": "c708b8fc-8311-4b57-9394-297aeefcaffc",
+      "name": "HTTPS",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": 440,
+        "y": -330,
+        "width": 250,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 250,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "05f32be8-2a60-4e11-a70b-193329617510"
+      },
+      "target": {
+        "direction": "Right",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "2e2ce5dc-8460-476b-8f58-bfd24d7df5c3": {
+      "id": "2e2ce5dc-8460-476b-8f58-bfd24d7df5c3",
+      "name": "SQL",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": 440,
+        "y": -105,
+        "width": 260,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 260,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
+      },
+      "target": {
+        "direction": "Right",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "e16a14fb-c4b1-4c69-bffb-1adb16453db1": {
+      "id": "e16a14fb-c4b1-4c69-bffb-1adb16453db1",
+      "name": "Connection",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": 440,
+        "y": -105,
+        "width": 260,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 260,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
+      },
+      "target": {
+        "direction": "Right",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "35fe2f83-f3b8-4b2a-9164-2abfb00e4c7b": {
+      "id": "35fe2f83-f3b8-4b2a-9164-2abfb00e4c7b",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -590,
+        "y": -350,
+        "width": 220,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 220,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "df33bc27-2eb5-49ec-aec0-680e89ba3059"
+      },
+      "target": {
+        "direction": "Left",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "79e94daf-dcae-4b37-a6eb-a822280bbc26": {
+      "id": "79e94daf-dcae-4b37-a6eb-a822280bbc26",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -590,
+        "y": -190,
+        "width": 220,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 220,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "98e7cc2c-fe7e-4e42-bc08-a246f6571e62"
+      },
+      "target": {
+        "direction": "Left",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    }
+  },
+  "assessments": {}
+}
