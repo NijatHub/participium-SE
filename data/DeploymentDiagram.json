@@ -2,7 +2,7 @@
   "version": "3.0.0",
   "type": "DeploymentDiagram",
   "size": {
-    "width": 2020,
+    "width": 1920,
     "height": 800
   },
   "interactive": {
@@ -16,8 +16,8 @@
       "type": "DeploymentNode",
       "owner": null,
       "bounds": {
-        "x": 690,
-        "y": -380,
+        "x": 90,
+        "y": 120,
         "width": 290,
         "height": 180
       },
@@ -30,8 +30,8 @@
       "type": "DeploymentComponent",
       "owner": "05f32be8-2a60-4e11-a70b-193329617510",
       "bounds": {
-        "x": 760,
-        "y": -310,
+        "x": 160,
+        "y": 190,
         "width": 160,
         "height": 100
       },
@@ -70,8 +70,8 @@
       "type": "DeploymentComponent",
       "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
       "bounds": {
-        "x": -260,
-        "y": -290,
+        "x": -210,
+        "y": -280,
         "width": 160,
         "height": 100
       },
@@ -79,65 +79,39 @@
     },
     "a0954e9c-259f-4d4b-8deb-c7f6695090f8": {
       "id": "a0954e9c-259f-4d4b-8deb-c7f6695090f8",
-      "name": "Notification",
+      "name": "Workflow and messaging",
       "type": "DeploymentComponent",
       "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
       "bounds": {
-        "x": -50,
-        "y": -290,
-        "width": 160,
-        "height": 100
-      },
-      "displayStereotype": false
-    },
-    "a89c9b20-ece1-4214-976a-cca019055fdb": {
-      "id": "a89c9b20-ece1-4214-976a-cca019055fdb",
-      "name": "DIrect messaging",
-      "type": "DeploymentComponent",
-      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
-      "bounds": {
-        "x": 150,
-        "y": -290,
-        "width": 160,
+        "x": 100,
+        "y": -280,
+        "width": 210,
         "height": 100
       },
       "displayStereotype": false
     },
     "beed4c9e-ff50-4298-8a92-f836530c0dd2": {
       "id": "beed4c9e-ff50-4298-8a92-f836530c0dd2",
-      "name": "Auth",
+      "name": "Auth and Account management",
       "type": "DeploymentComponent",
       "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
       "bounds": {
-        "x": -260,
+        "x": -250,
         "y": -130,
-        "width": 160,
+        "width": 260,
         "height": 100
       },
       "displayStereotype": false
     },
     "e4be844c-f15c-4609-8635-f705fe9ff222": {
       "id": "e4be844c-f15c-4609-8635-f705fe9ff222",
-      "name": "Analytics",
+      "name": "Analytics and Admin",
       "type": "DeploymentComponent",
       "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
       "bounds": {
-        "x": -50,
-        "y": -130,
-        "width": 160,
-        "height": 100
-      },
-      "displayStereotype": false
-    },
-    "4fd8f796-2834-4746-98f8-c1aeca60f629": {
-      "id": "4fd8f796-2834-4746-98f8-c1aeca60f629",
-      "name": "Web app",
-      "type": "DeploymentComponent",
-      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
-      "bounds": {
-        "x": 160,
-        "y": -130,
-        "width": 160,
+        "x": 120,
+        "y": -120,
+        "width": 180,
         "height": 100
       },
       "displayStereotype": false
@@ -148,8 +122,8 @@
       "type": "DeploymentNode",
       "owner": null,
       "bounds": {
-        "x": 700,
-        "y": -170,
+        "x": 650,
+        "y": -380,
         "width": 290,
         "height": 210
       },
@@ -158,16 +132,16 @@
     },
     "2a5c9248-7854-4c6b-aef7-668d061316c3": {
       "id": "2a5c9248-7854-4c6b-aef7-668d061316c3",
-      "name": "Component",
+      "name": "Relational DB",
       "type": "DeploymentComponent",
       "owner": "fae2032e-14b2-4505-918f-7aa076bef158",
       "bounds": {
-        "x": 770,
-        "y": -90,
+        "x": 720,
+        "y": -300,
         "width": 160,
         "height": 100
       },
-      "displayStereotype": true
+      "displayStereotype": false
     },
     "df33bc27-2eb5-49ec-aec0-680e89ba3059": {
       "id": "df33bc27-2eb5-49ec-aec0-680e89ba3059",
@@ -185,7 +159,7 @@
     },
     "98e7cc2c-fe7e-4e42-bc08-a246f6571e62": {
       "id": "98e7cc2c-fe7e-4e42-bc08-a246f6571e62",
-      "name": "Email service",
+      "name": "SMTP",
       "type": "DeploymentNode",
       "owner": null,
       "bounds": {
@@ -193,6 +167,47 @@
         "y": -200,
         "width": 160,
         "height": 100
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "1299978f-d9b8-409c-b26e-44d51d63fe96": {
+      "id": "1299978f-d9b8-409c-b26e-44d51d63fe96",
+      "name": "Web server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -360,
+        "y": 120,
+        "width": 250,
+        "height": 200
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "d3818408-1a2e-4b45-b535-bafd25bedd22": {
+      "id": "d3818408-1a2e-4b45-b535-bafd25bedd22",
+      "name": "Front-end",
+      "type": "DeploymentComponent",
+      "owner": "1299978f-d9b8-409c-b26e-44d51d63fe96",
+      "bounds": {
+        "x": -320,
+        "y": 180,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": true
+    },
+    "bd1b15de-76da-44e8-bac4-65fa36dd5441": {
+      "id": "bd1b15de-76da-44e8-bac4-65fa36dd5441",
+      "name": "Attachment storage / CDN",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -870,
+        "y": -50,
+        "width": 360,
+        "height": 80
       },
       "stereotype": "node",
       "displayStereotype": true
@@ -205,14 +220,14 @@
       "type": "DeploymentAssociation",
       "owner": null,
       "bounds": {
-        "x": 440,
-        "y": -330,
-        "width": 250,
+        "x": -110,
+        "y": 170,
+        "width": 200,
         "height": 41
       },
       "path": [
         {
-          "x": 250,
+          "x": 200,
           "y": 40
         },
         {
@@ -226,69 +241,7 @@
       },
       "target": {
         "direction": "Right",
-        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
-      },
-      "isManuallyLayouted": false
-    },
-    "2e2ce5dc-8460-476b-8f58-bfd24d7df5c3": {
-      "id": "2e2ce5dc-8460-476b-8f58-bfd24d7df5c3",
-      "name": "SQL",
-      "type": "DeploymentAssociation",
-      "owner": null,
-      "bounds": {
-        "x": 440,
-        "y": -105,
-        "width": 260,
-        "height": 41
-      },
-      "path": [
-        {
-          "x": 260,
-          "y": 40
-        },
-        {
-          "x": 0,
-          "y": 40
-        }
-      ],
-      "source": {
-        "direction": "Left",
-        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
-      },
-      "target": {
-        "direction": "Right",
-        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
-      },
-      "isManuallyLayouted": false
-    },
-    "e16a14fb-c4b1-4c69-bffb-1adb16453db1": {
-      "id": "e16a14fb-c4b1-4c69-bffb-1adb16453db1",
-      "name": "Connection",
-      "type": "DeploymentAssociation",
-      "owner": null,
-      "bounds": {
-        "x": 440,
-        "y": -105,
-        "width": 260,
-        "height": 41
-      },
-      "path": [
-        {
-          "x": 260,
-          "y": 40
-        },
-        {
-          "x": 0,
-          "y": 40
-        }
-      ],
-      "source": {
-        "direction": "Left",
-        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
-      },
-      "target": {
-        "direction": "Right",
-        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+        "element": "1299978f-d9b8-409c-b26e-44d51d63fe96"
       },
       "isManuallyLayouted": false
     },
@@ -350,6 +303,99 @@
       },
       "target": {
         "direction": "Left",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "99f8a5e4-413c-415a-9a06-e69a90ea1405": {
+      "id": "99f8a5e4-413c-415a-9a06-e69a90ea1405",
+      "name": "HTTPS/REST API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -235,
+        "y": 40,
+        "width": 134.8000030517578,
+        "height": 80
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 80
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "source": {
+        "direction": "Up",
+        "element": "1299978f-d9b8-409c-b26e-44d51d63fe96"
+      },
+      "target": {
+        "direction": "Down",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "0f0f66fc-e46e-42fe-ae3e-ba33d82b6515": {
+      "id": "0f0f66fc-e46e-42fe-ae3e-ba33d82b6515",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -510,
+        "y": -50,
+        "width": 140,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 140,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "bd1b15de-76da-44e8-bac4-65fa36dd5441"
+      },
+      "target": {
+        "direction": "Upleft",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "1bd3eeed-fd29-47a2-9806-117df88632ab": {
+      "id": "1bd3eeed-fd29-47a2-9806-117df88632ab",
+      "name": "DB connection",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": 440,
+        "y": -315,
+        "width": 210,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 210,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
+      },
+      "target": {
+        "direction": "Right",
         "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
       },
       "isManuallyLayouted": false
