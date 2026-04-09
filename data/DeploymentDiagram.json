@@ -1,0 +1,405 @@
+{
+  "version": "3.0.0",
+  "type": "DeploymentDiagram",
+  "size": {
+    "width": 1920,
+    "height": 800
+  },
+  "interactive": {
+    "elements": {},
+    "relationships": {}
+  },
+  "elements": {
+    "05f32be8-2a60-4e11-a70b-193329617510": {
+      "id": "05f32be8-2a60-4e11-a70b-193329617510",
+      "name": "Client ",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": 90,
+        "y": 120,
+        "width": 290,
+        "height": 180
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "6371afd8-10a0-4569-99dc-5ce3dd6fe830": {
+      "id": "6371afd8-10a0-4569-99dc-5ce3dd6fe830",
+      "name": "Browser",
+      "type": "DeploymentComponent",
+      "owner": "05f32be8-2a60-4e11-a70b-193329617510",
+      "bounds": {
+        "x": 160,
+        "y": 190,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "64b31bd3-6ef9-49aa-9be1-3959fcfe98da": {
+      "id": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da",
+      "name": "Application server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -370,
+        "y": -380,
+        "width": 810,
+        "height": 420
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "2ef05e83-80ab-4a98-b05c-3444a7db58b0": {
+      "id": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "name": "Back-end",
+      "type": "DeploymentComponent",
+      "owner": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da",
+      "bounds": {
+        "x": -290,
+        "y": -310,
+        "width": 650,
+        "height": 320
+      },
+      "displayStereotype": false
+    },
+    "c8612580-24c8-42b7-915a-b8dd49fb0bea": {
+      "id": "c8612580-24c8-42b7-915a-b8dd49fb0bea",
+      "name": "Report",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -210,
+        "y": -280,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "a0954e9c-259f-4d4b-8deb-c7f6695090f8": {
+      "id": "a0954e9c-259f-4d4b-8deb-c7f6695090f8",
+      "name": "Workflow and messaging",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": 100,
+        "y": -280,
+        "width": 210,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "beed4c9e-ff50-4298-8a92-f836530c0dd2": {
+      "id": "beed4c9e-ff50-4298-8a92-f836530c0dd2",
+      "name": "Auth and Account management",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": -250,
+        "y": -130,
+        "width": 260,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "e4be844c-f15c-4609-8635-f705fe9ff222": {
+      "id": "e4be844c-f15c-4609-8635-f705fe9ff222",
+      "name": "Analytics and Admin",
+      "type": "DeploymentComponent",
+      "owner": "2ef05e83-80ab-4a98-b05c-3444a7db58b0",
+      "bounds": {
+        "x": 120,
+        "y": -120,
+        "width": 180,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "fae2032e-14b2-4505-918f-7aa076bef158": {
+      "id": "fae2032e-14b2-4505-918f-7aa076bef158",
+      "name": "Database server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": 650,
+        "y": -380,
+        "width": 290,
+        "height": 210
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "2a5c9248-7854-4c6b-aef7-668d061316c3": {
+      "id": "2a5c9248-7854-4c6b-aef7-668d061316c3",
+      "name": "Relational DB",
+      "type": "DeploymentComponent",
+      "owner": "fae2032e-14b2-4505-918f-7aa076bef158",
+      "bounds": {
+        "x": 720,
+        "y": -300,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": false
+    },
+    "df33bc27-2eb5-49ec-aec0-680e89ba3059": {
+      "id": "df33bc27-2eb5-49ec-aec0-680e89ba3059",
+      "name": "OpenStreetMap",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -750,
+        "y": -360,
+        "width": 160,
+        "height": 100
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "98e7cc2c-fe7e-4e42-bc08-a246f6571e62": {
+      "id": "98e7cc2c-fe7e-4e42-bc08-a246f6571e62",
+      "name": "SMTP",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -750,
+        "y": -200,
+        "width": 160,
+        "height": 100
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "1299978f-d9b8-409c-b26e-44d51d63fe96": {
+      "id": "1299978f-d9b8-409c-b26e-44d51d63fe96",
+      "name": "Web server",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -360,
+        "y": 120,
+        "width": 250,
+        "height": 200
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    },
+    "d3818408-1a2e-4b45-b535-bafd25bedd22": {
+      "id": "d3818408-1a2e-4b45-b535-bafd25bedd22",
+      "name": "Front-end",
+      "type": "DeploymentComponent",
+      "owner": "1299978f-d9b8-409c-b26e-44d51d63fe96",
+      "bounds": {
+        "x": -320,
+        "y": 180,
+        "width": 160,
+        "height": 100
+      },
+      "displayStereotype": true
+    },
+    "bd1b15de-76da-44e8-bac4-65fa36dd5441": {
+      "id": "bd1b15de-76da-44e8-bac4-65fa36dd5441",
+      "name": "Attachment storage / CDN",
+      "type": "DeploymentNode",
+      "owner": null,
+      "bounds": {
+        "x": -870,
+        "y": -50,
+        "width": 360,
+        "height": 80
+      },
+      "stereotype": "node",
+      "displayStereotype": true
+    }
+  },
+  "relationships": {
+    "c708b8fc-8311-4b57-9394-297aeefcaffc": {
+      "id": "c708b8fc-8311-4b57-9394-297aeefcaffc",
+      "name": "HTTPS",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -110,
+        "y": 170,
+        "width": 200,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 200,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "05f32be8-2a60-4e11-a70b-193329617510"
+      },
+      "target": {
+        "direction": "Right",
+        "element": "1299978f-d9b8-409c-b26e-44d51d63fe96"
+      },
+      "isManuallyLayouted": false
+    },
+    "35fe2f83-f3b8-4b2a-9164-2abfb00e4c7b": {
+      "id": "35fe2f83-f3b8-4b2a-9164-2abfb00e4c7b",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -590,
+        "y": -350,
+        "width": 220,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 220,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "df33bc27-2eb5-49ec-aec0-680e89ba3059"
+      },
+      "target": {
+        "direction": "Left",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "79e94daf-dcae-4b37-a6eb-a822280bbc26": {
+      "id": "79e94daf-dcae-4b37-a6eb-a822280bbc26",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -590,
+        "y": -190,
+        "width": 220,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 220,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "98e7cc2c-fe7e-4e42-bc08-a246f6571e62"
+      },
+      "target": {
+        "direction": "Left",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "99f8a5e4-413c-415a-9a06-e69a90ea1405": {
+      "id": "99f8a5e4-413c-415a-9a06-e69a90ea1405",
+      "name": "HTTPS/REST API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -235,
+        "y": 40,
+        "width": 134.8000030517578,
+        "height": 80
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 80
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "source": {
+        "direction": "Up",
+        "element": "1299978f-d9b8-409c-b26e-44d51d63fe96"
+      },
+      "target": {
+        "direction": "Down",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "0f0f66fc-e46e-42fe-ae3e-ba33d82b6515": {
+      "id": "0f0f66fc-e46e-42fe-ae3e-ba33d82b6515",
+      "name": "API",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": -510,
+        "y": -50,
+        "width": 140,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 0,
+          "y": 40
+        },
+        {
+          "x": 140,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Right",
+        "element": "bd1b15de-76da-44e8-bac4-65fa36dd5441"
+      },
+      "target": {
+        "direction": "Upleft",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    },
+    "1bd3eeed-fd29-47a2-9806-117df88632ab": {
+      "id": "1bd3eeed-fd29-47a2-9806-117df88632ab",
+      "name": "DB connection",
+      "type": "DeploymentAssociation",
+      "owner": null,
+      "bounds": {
+        "x": 440,
+        "y": -315,
+        "width": 210,
+        "height": 41
+      },
+      "path": [
+        {
+          "x": 210,
+          "y": 40
+        },
+        {
+          "x": 0,
+          "y": 40
+        }
+      ],
+      "source": {
+        "direction": "Left",
+        "element": "fae2032e-14b2-4505-918f-7aa076bef158"
+      },
+      "target": {
+        "direction": "Right",
+        "element": "64b31bd3-6ef9-49aa-9be1-3959fcfe98da"
+      },
+      "isManuallyLayouted": false
+    }
+  },
+  "assessments": {}
+}
