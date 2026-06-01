@@ -1,0 +1,3598 @@
+{
+  "info": {
+    "_postman_id": "f321e1d3-9ce9-4e39-b61f-a243b5bd2b57",
+    "name": "Participium",
+    "description": "Acceptance test suite for the Participium backend API. Run top-to-bottom against a locally started backend (see src/backend/README.md). Requires seed demo data (BOOTSTRAP_DEMO_DATA=true). Use Newman: newman run Participium.postman_collection.json -e Participium.postman_environment.json --working-dir .",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "id": "400c9c67-3dfc-44b9-97c2-d631e3f89ad4",
+      "name": "System",
+      "item": [
+        {
+          "id": "92481527-2c5d-4ab8-b5c5-33cc16b26e86",
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "555fd812-d395-4083-bb15-2a631526ebb0",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('status is ok', () => pm.expect(b.status).to.eql('ok'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "edcf787a-b5c6-4816-b691-8fe9dc37f45e",
+          "name": "Reference Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meta/reference-data",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "meta",
+                "reference-data"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "2e7707e7-3507-4c86-8fd0-a7af1137a33f",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('has roles array', () => pm.expect(b.roles).to.be.an('array').with.length.above(0));",
+                  "pm.test('roles include citizen operator admin', () => { pm.expect(b.roles).to.include('citizen'); pm.expect(b.roles).to.include('operator'); pm.expect(b.roles).to.include('admin'); });",
+                  "pm.test('has report_statuses', () => pm.expect(b.report_statuses).to.be.an('array').with.length.above(0));",
+                  "pm.test('Pending Approval in statuses', () => pm.expect(b.report_statuses).to.include('Pending Approval'));",
+                  "pm.test('has public_report_statuses', () => pm.expect(b.public_report_statuses).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "470795ae-f94d-468e-8290-db77b222c8c8",
+      "name": "Authentication",
+      "item": [
+        {
+          "id": "67d9f384-f856-4bdb-a6de-51209a03ce0c",
+          "name": "Register New Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{new_citizen_username}}\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"Citizen\",\n  \"email\": \"{{new_citizen_email}}\",\n  \"password\": \"{{new_citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "f2ab3e65-d712-44bd-a51e-40fad09d59b6",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set('new_citizen_username', 'citizen_' + ts);",
+                  "pm.environment.set('new_citizen_email', 'citizen_' + ts + '@test.example');",
+                  "pm.environment.set('new_citizen_password', 'Test1234!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "adb1b196-8364-4e46-ad09-f393e3502d02",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.test('user returned with correct username', () => { pm.expect(b.user).to.be.an('object'); pm.expect(b.user.username).to.eql(pm.environment.get('new_citizen_username')); });",
+                  "pm.test('role is citizen', () => pm.expect(b.user.role).to.eql('citizen'));",
+                  "pm.test('is_email_verified is false', () => pm.expect(b.user.is_email_verified).to.be.false);",
+                  "pm.environment.set('new_citizen_id', b.user.id);",
+                  "if (b.verification_url) {",
+                  "    const parts = b.verification_url.split('/');",
+                  "    pm.environment.set('verify_token', parts[parts.length - 1]);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ca51218f-5c1b-4904-b314-02538ebc385f",
+          "name": "Verify New Citizen Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/verify/{{verify_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify",
+                "{{verify_token}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1b256521-c598-4ada-a7fd-afe8586e8e3b",
+                "exec": [
+                  "if (!pm.environment.get('verify_token')) { pm.test('verify_token not set (skipped)', () => true); return; }",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('verified message', () => pm.expect(b.message).to.include('verified'));",
+                  "pm.test('user is_email_verified true', () => pm.expect(b.user.is_email_verified).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "1978e376-3bb5-4c8e-b30e-5ec08f42dbc5",
+          "name": "Login as New Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{new_citizen_email}}\",\n  \"password\": \"{{new_citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "b1c5f73d-57e7-4b8e-b781-78dbd2ab75a9",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('user role citizen', () => pm.expect(pm.response.json().user.role).to.eql('citizen'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "90cbe72c-67c4-447c-bf70-6d82a69392a2",
+          "name": "Delete New Citizen Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f92957ae-cfd3-4067-abee-f883f517ca71",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('deletion message', () => pm.expect(pm.response.json().message).to.include('deleted'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "878e25ce-3108-47a0-82a6-6bc12261ad56",
+          "name": "Login Deleted Account (401)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{new_citizen_email}}\",\n  \"password\": \"{{new_citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1d113217-a8fe-42e5-b58c-46fd8d127b7f",
+                "exec": [
+                  "pm.test('Status 401 after account deletion', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a9f5ea8-a3ed-4701-9964-aa3cfa41bdd8",
+          "name": "Login as Citizen (seeded)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4251a81f-4046-449f-9d6e-1a5f5a859797",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });",
+                  "pm.environment.set('citizen_id', b.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "52895128-6e85-40f2-b10a-1612f83b613d",
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "cdabd457-d6aa-4679-9a89-257d1fafe0df",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json();",
+                  "pm.test('role is citizen', () => pm.expect(u.role).to.eql('citizen'));",
+                  "pm.test('email matches', () => pm.expect(u.email).to.eql(pm.environment.get('citizen_email')));",
+                  "pm.test('has required fields', () => { pm.expect(u.id).to.be.a('number'); pm.expect(u.username).to.be.a('string'); pm.expect(u.is_active).to.be.true; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b5ebcda2-96a6-4f00-b1ff-5a9cc103e7cc",
+          "name": "Logout Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "46d870d0-6703-4c75-9215-177e5ddba917",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "71397ee7-b910-45bf-8a12-bf908fa91b26",
+          "name": "Login as Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{operator_email}}\",\n  \"password\": \"{{operator_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "09aaed95-c62b-4a32-83a6-96f09e541ec4",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });",
+                  "pm.environment.set('operator_id', b.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ded1beeb-9b04-4b9a-9ad7-3b35262c4c77",
+          "name": "Logout Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "474a30c7-e25c-4f1f-b5fd-60db046f1062",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "0d831144-4f56-43bb-8d99-c7e99aa60366",
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "83344594-a751-48e8-8307-91a13b0c2b5c",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });",
+                  "pm.environment.set('admin_id', b.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d6ef36ee-4ab8-4225-b250-3f56a638fa8c",
+          "name": "Logout Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "67ecb228-2716-426f-97f5-3864d6393b79",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ab3ccc29-a102-4259-885b-013ee30a6acd",
+          "name": "Login Wrong Password (401)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"citizen@example.com\",\n  \"password\": \"WrongPass999!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "777ee38f-d4f7-41d2-9882-102e6b2e600f",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error field present', () => pm.expect(pm.response.json()).to.have.property('error'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5956b67b-7b70-4832-bd4f-69fe4ef5b8a1",
+          "name": "Access Protected Endpoint Unauthenticated (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6b2c1492-b810-4876-8ffa-69a068b7c961",
+                "exec": [
+                  "pm.test('Status 401 for unauthenticated', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9c4317f8-08c8-493b-9c46-1b8f40781090",
+          "name": "Register Duplicate Email (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser_dup\",\n  \"first_name\": \"A\",\n  \"last_name\": \"B\",\n  \"email\": \"citizen@example.com\",\n  \"password\": \"Test1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "fef24177-5236-4db6-afdd-df5ba9bf00dd",
+                "exec": [
+                  "pm.test('Status 400 duplicate email', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fcd8108f-b4ff-4c88-aa0e-2d714de85019",
+      "name": "Categories",
+      "item": [
+        {
+          "id": "c738cfc1-026b-4133-891e-db9b4322dd21",
+          "name": "List Active Categories (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d4a82b2e-2443-447f-9ede-a1eadf02cfd9",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const cats = pm.response.json();",
+                  "pm.test('is non-empty array', () => pm.expect(cats).to.be.an('array').with.length.above(0));",
+                  "pm.test('each category has id and name', () => cats.forEach(c => { pm.expect(c.id).to.be.a('number'); pm.expect(c.name).to.be.a('string'); }));",
+                  "pm.test('all categories are active', () => cats.forEach(c => pm.expect(c.is_active).to.be.true));",
+                  "pm.test('Roads and Urban Furniture present', () => pm.expect(cats.some(c => c.name === 'Roads and Urban Furniture')).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5fb0f8f3-8ad7-4ec2-8a9f-dab470bed601",
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "7148ef60-0509-4b50-bda5-93aba51c8433",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6c336f61-77ba-4a57-bf0f-017f44d4dad4",
+          "name": "Admin List All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d114ab76-0718-42cb-abb0-aa16592d0089",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is array', () => pm.expect(pm.response.json()).to.be.an('array').with.length.above(0));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "902f3a22-121a-4255-a6e8-3a813e4b3dfb",
+          "name": "Admin Create Category",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{new_category_name}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "4be5bbe3-f019-4b1b-8e98-aa80ffaf7368",
+                "exec": [
+                  "pm.environment.set('new_category_name', 'TestCat_' + Date.now());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "b23af725-c5a4-4a3b-bd97-bc6db869bd91",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('name matches', () => pm.expect(c.name).to.eql(pm.environment.get('new_category_name')));",
+                  "pm.test('is_active true', () => pm.expect(c.is_active).to.be.true);",
+                  "pm.test('has id', () => pm.expect(c.id).to.be.a('number'));",
+                  "pm.environment.set('new_category_id', c.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "f2cb9682-fcbd-4a58-92a4-4c0571123036",
+          "name": "Admin Update Category Name",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/categories/{{new_category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{new_category_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{new_category_name}}_upd\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "7a5d0fb3-416e-4a87-a5fc-c1ddf248a12d",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('name updated', () => pm.expect(pm.response.json().name).to.include('_upd'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "de791dee-a47e-48ad-b5e4-fc3a62db2101",
+          "name": "Admin Deactivate Category",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/categories/{{new_category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{new_category_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1cb1ca55-7842-40d0-ad30-e20140779fda",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is_active false', () => pm.expect(pm.response.json().is_active).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d240eb2f-1136-4434-bdf0-6908a571ea21",
+          "name": "Deactivated Category Absent from Public List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "47a05647-db1c-4dec-99dd-76c8242ec2ca",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const cats = pm.response.json();",
+                  "const newCatId = parseInt(pm.environment.get('new_category_id'));",
+                  "pm.test('deactivated category not in public list', () => pm.expect(cats.some(c => c.id === newCatId)).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9ffa56e2-8d77-4377-89b7-8acf87821c5d",
+          "name": "Login as Citizen (wrong role)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "80fdcf6c-c61e-4120-9a91-8236fbfc865d",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "44e3aa01-3475-43da-8542-15478902fbdd",
+          "name": "Create Category as Citizen (403)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ShouldFail\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d3402da9-31bf-4f5b-8929-8e76a67a0f18",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d59079b5-e030-4149-a5d4-b1d6c4242839",
+          "name": "Logout after categories",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f0e1e89e-e768-439d-a8e4-7d4e09d8d670",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "47c3a161-014c-409a-9e90-03083fd4704a",
+      "name": "Reports - Public Browse",
+      "item": [
+        {
+          "id": "2ae32285-a88d-45b7-851c-35fb0658f37d",
+          "name": "List Public Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "099aa1a6-a7b9-4139-ba60-358d0c8b993e",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const reps = pm.response.json();",
+                  "pm.test('is array', () => pm.expect(reps).to.be.an('array'));",
+                  "pm.test('each report has required fields', () => reps.forEach(r => { pm.expect(r.id).to.be.a('number'); pm.expect(r.title).to.be.a('string'); pm.expect(r.status).to.be.a('string'); pm.expect(r.category).to.be.an('object'); }));",
+                  "const PUBLIC_STATUSES = ['Assigned', 'In Progress', 'Suspended', 'Resolved'];",
+                  "pm.test('all reports have public status', () => reps.forEach(r => pm.expect(PUBLIC_STATUSES).to.include(r.status)));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "7d470813-fd2d-41d4-876d-a63fdf33ce2c",
+          "name": "List Reports Filtered by Status (Resolved)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports?status=Resolved",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Resolved"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e64acd71-4af1-4496-9da8-a6c19dacf093",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.response.json().forEach(r => pm.test('status is Resolved for ' + r.id, () => pm.expect(r.status).to.eql('Resolved')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "8eab73f2-8c86-49d7-a0d5-558f33e148b5",
+          "name": "List Reports Filtered by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports?category_id={{roads_category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "{{roads_category_id}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "78d35190-0fd7-407d-9f23-be64cb5242cd",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const expected = parseInt(pm.environment.get('roads_category_id'));",
+                  "pm.response.json().forEach(r => pm.test('category matches for ' + r.id, () => pm.expect(r.category.id).to.eql(expected)));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "860c9eb9-5eac-4ee0-8605-0bdc039948d1",
+          "name": "Get Seed Report Detail - Resolved Anonymous (id=2)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6d5e4f38-0d9e-4065-951a-0c4c13811783",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('id is 2', () => pm.expect(r.id).to.eql(2));",
+                  "pm.test('status is Resolved', () => pm.expect(r.status).to.eql('Resolved'));",
+                  "pm.test('is_anonymous true', () => pm.expect(r.is_anonymous).to.be.true);",
+                  "pm.test('reporter id hidden for anonymous (null)', () => pm.expect(r.reporter.id).to.be.null);",
+                  "pm.test('has photos array', () => pm.expect(r.photos).to.be.an('array'));",
+                  "pm.test('has status_history', () => pm.expect(r.status_history).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "0ebdba4c-af26-40fa-aa70-e6560427a6ab",
+          "name": "Export Reports CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "export"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9c0ff50b-045f-478d-8ca6-f3772976501e",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type is text/csv', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv'));",
+                  "pm.test('response body is non-empty', () => pm.expect(pm.response.text().length).to.be.above(0));",
+                  "pm.test('CSV contains id column header', () => pm.expect(pm.response.text()).to.include('id'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "c553573e-8795-4dc4-965d-1916b3917e62",
+          "name": "Get Nonexistent Report (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{nonexistent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{nonexistent_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "760ba58d-c526-4bc1-9788-afe9913b40d2",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error field present', () => pm.expect(pm.response.json()).to.have.property('error'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "420c4ed8-1c24-42a4-aaab-4cf2d1689070",
+          "name": "List Reports Invalid Status Filter (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports?status=NotARealStatus",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "NotARealStatus"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "16eb70e0-e8dd-4f1d-a16b-313617f80b50",
+                "exec": [
+                  "pm.test('Status 400 for invalid status', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f652a683-9787-4d3b-ae7a-8731f335e9d5",
+      "name": "Reports - Citizen Workflow",
+      "item": [
+        {
+          "id": "cdb795da-751c-4a96-84d7-48043fee1f33",
+          "name": "Login as Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "128ce68c-1de0-4c21-8a8f-18b36605e7b2",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });",
+                  "pm.environment.set('citizen_id', b.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "01e93a77-a72a-45e4-ae25-7f94af685d23",
+          "name": "Create Report (multipart/form-data)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "{{new_report_title}}",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Large pothole near the main intersection \u2014 acceptance test report",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{roads_category_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "45.0703",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "7.6869",
+                  "type": "text"
+                },
+                {
+                  "key": "is_anonymous",
+                  "value": "false",
+                  "type": "text"
+                },
+                {
+                  "key": "photos",
+                  "src": "src/backend/postman/test-photo.svg",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "306f8110-a83a-412d-9315-231b87721c6d",
+                "exec": [
+                  "pm.environment.set('new_report_title', 'Broken pavement ' + Date.now());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "d303f190-d1a8-4d2c-a6fd-fa817945ce6e",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.test('title matches', () => pm.expect(r.title).to.eql(pm.environment.get('new_report_title')));",
+                  "pm.test('status is Pending Approval', () => pm.expect(r.status).to.eql('Pending Approval'));",
+                  "pm.test('category is Roads and Urban Furniture', () => pm.expect(r.category.id).to.eql(parseInt(pm.environment.get('roads_category_id'))));",
+                  "pm.test('is_anonymous false', () => pm.expect(r.is_anonymous).to.be.false);",
+                  "pm.test('reporter is populated (owner view)', () => pm.expect(r.reporter).to.not.be.null);",
+                  "pm.test('has at least one photo', () => pm.expect(r.photos).to.be.an('array').with.length.above(0));",
+                  "pm.test('has status_history entry', () => pm.expect(r.status_history).to.be.an('array').with.length.above(0));",
+                  "pm.environment.set('new_report_id', r.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "87aa6b6b-9af8-45b6-a05f-d30a4c39ca5c",
+          "name": "My Reports Contains New Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "reports"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a3e5c78d-f9fe-44dd-a4a8-a87e0d6c8af1",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const reps = pm.response.json();",
+                  "pm.test('new report appears in my reports', () => pm.expect(reps.some(r => r.id === parseInt(pm.environment.get('new_report_id')))).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9f2f4970-8784-46ac-b9ce-84d4555d15b2",
+          "name": "Get New Report Detail (owner view)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "15dadf64-f7fb-4be5-a1e5-1b4d7ac7f9a3",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('status Pending Approval', () => pm.expect(r.status).to.eql('Pending Approval'));",
+                  "pm.test('reporter visible to owner even if anonymous', () => pm.expect(r.reporter).to.not.be.null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6dcce3e4-efc5-44c0-a482-19adb91ff8dc",
+          "name": "Follow Public Resolved Report (id=2)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2/follow",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2",
+                "follow"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c1d90d9f-4185-4cfb-91f8-676de1d6764a",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('response includes is_followed_by_current_user field', () => pm.expect(pm.response.json()).to.have.property('is_followed_by_current_user'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b34a1c55-4f53-42b5-ae45-a0581a356b77",
+          "name": "Unfollow Public Resolved Report (id=2)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2/follow",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2",
+                "follow"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9a8f31e3-54e5-46b9-ad89-4f6e0cd855b1",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('response includes is_followed_by_current_user field', () => pm.expect(pm.response.json()).to.have.property('is_followed_by_current_user'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "67e5fbfd-5afc-4aed-bf11-a67a85f256d2",
+          "name": "Create Anonymous Report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "{{anon_report_title}}",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Anonymous report for privacy acceptance test",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{roads_category_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "45.0700",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "7.6800",
+                  "type": "text"
+                },
+                {
+                  "key": "is_anonymous",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "photos",
+                  "src": "src/backend/postman/test-photo.svg",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "0dd93784-c7ec-4a12-843a-117bc6671ef2",
+                "exec": [
+                  "pm.environment.set('anon_report_title', 'AnonReport_' + Date.now());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "d6753d38-5b83-4f2a-b037-f59b6ab5a580",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.test('is_anonymous true', () => pm.expect(r.is_anonymous).to.be.true);",
+                  "pm.test('reporter visible to creator of anonymous report', () => pm.expect(r.reporter).to.not.be.null);",
+                  "pm.environment.set('anon_report_id', r.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "0e645170-12de-44c7-a739-5de93f078e7f",
+          "name": "Create Report Missing Title (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "description",
+                  "value": "no title here",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{roads_category_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "45.0",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "7.6",
+                  "type": "text"
+                },
+                {
+                  "key": "photos",
+                  "src": "src/backend/postman/test-photo.svg",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4391d9f6-d089-4a3e-863f-95d0887fd786",
+                "exec": [
+                  "pm.test('Status 400 missing title', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "fe81981d-adf1-4988-a6f1-0e4a82431ddf",
+          "name": "Logout Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e8e2b184-84ea-4341-bfdf-1267d4ff6e03",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5f9647b3-ae1e-4905-bb53-188d98469e2f",
+          "name": "Create Report Unauthenticated (401)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "unauth_report",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "should fail",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "7",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "45.0",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "7.6",
+                  "type": "text"
+                },
+                {
+                  "key": "photos",
+                  "src": "src/backend/postman/test-photo.svg",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "de13ed05-dacd-4ce8-b736-f0793da44078",
+                "exec": [
+                  "pm.test('Status 401 unauthenticated', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "33d88971-19e1-4e28-b9ff-2bdd87ad2cd7",
+          "name": "Login as Operator (wrong role for create)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{operator_email}}\",\n  \"password\": \"{{operator_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9d7664f2-0160-4007-a178-85f01d0a5362",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3a577bc9-26ad-42b7-befe-1c6adaee6259",
+          "name": "Create Report as Operator (403)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "op_should_fail",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "operator cannot create",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "7",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "45.0",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "7.6",
+                  "type": "text"
+                },
+                {
+                  "key": "photos",
+                  "src": "src/backend/postman/test-photo.svg",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "aa1f385c-9fab-414d-93a1-f6a35d9b6411",
+                "exec": [
+                  "pm.test('Status 403 operator cannot create report', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ce32cbd7-10b8-43e7-8a20-dff549e43ec1",
+          "name": "Logout Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "432e63ce-55b1-4467-beef-a88b951844a7",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7a5ef73e-3d58-4767-b699-2782cf6fa17f",
+      "name": "Operator Workflow",
+      "item": [
+        {
+          "id": "3b4e2ca5-10cc-4df1-a3ed-3524935661b9",
+          "name": "Login as Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{operator_email}}\",\n  \"password\": \"{{operator_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "abb4ac4c-abcb-4365-8998-ebd78070623c",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });",
+                  "pm.environment.set('operator_id', b.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d854a094-05ce-4f64-a110-d2d7fa365d85",
+          "name": "Pending Reports Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "pending"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3588c4d2-ef62-4940-9b42-d1fd99960a08",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const reps = pm.response.json();",
+                  "pm.test('is array', () => pm.expect(reps).to.be.an('array'));",
+                  "pm.test('new report is in pending queue', () => pm.expect(reps.some(r => r.id === parseInt(pm.environment.get('new_report_id')))).to.be.true);",
+                  "pm.test('all have Pending Approval status', () => reps.forEach(r => pm.expect(r.status).to.eql('Pending Approval')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "10f8ccac-dc69-4da3-9d13-9b0326261be4",
+          "name": "Assign Report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/{{new_report_id}}/assign",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "{{new_report_id}}",
+                "assign"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3cf29677-ab27-4df7-a4e5-850e9ee5526f",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('status is Assigned', () => pm.expect(r.status).to.eql('Assigned'));",
+                  "pm.test('report id matches', () => pm.expect(r.id).to.eql(parseInt(pm.environment.get('new_report_id'))));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d94f0407-c964-4776-98bc-4f6aeef65fa0",
+          "name": "Assigned Reports Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/assigned",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "assigned"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "24b5aa82-e829-4dcd-bcd1-09b504cd15c6",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const reps = pm.response.json();",
+                  "pm.test('assigned report is in dashboard', () => pm.expect(reps.some(r => r.id === parseInt(pm.environment.get('new_report_id')))).to.be.true);",
+                  "pm.test('each entry has unread_message_count', () => reps.forEach(r => pm.expect(r).to.have.property('unread_message_count')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d6b0cad0-4901-411f-b53b-768d94b9dc3f",
+          "name": "Update Status to In Progress",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/{{new_report_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "{{new_report_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\",\n  \"note\": \"Crew dispatched to location\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "b00952db-3716-4725-9b34-814b38662bbd",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('status is In Progress', () => pm.expect(pm.response.json().status).to.eql('In Progress'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5e0a8bdb-3754-4952-84d8-04d28c2deade",
+          "name": "Update Status to Resolved",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/{{new_report_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "{{new_report_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\",\n  \"note\": \"Issue fully repaired\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8bb45415-5294-4813-9a2c-c3b0578623b7",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('status is Resolved', () => pm.expect(pm.response.json().status).to.eql('Resolved'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "7a59a8f0-16ac-4864-9775-ee2f2bdc5c51",
+          "name": "Resolved Report Appears in Public List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "df1108f7-262c-4d9d-b807-75052a8871cc",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('is_public true', () => pm.expect(r.is_public).to.be.true);",
+                  "pm.test('status is Resolved', () => pm.expect(r.status).to.eql('Resolved'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5fc232ed-cd3d-422c-b01f-487f974c4545",
+          "name": "Invalid Status Transition (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/{{new_report_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "{{new_report_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Pending Approval\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "81485cb2-939e-4e56-ad3a-f92bbe3e5d52",
+                "exec": [
+                  "pm.test('Status 400 invalid transition', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "c9a7aa13-9aa9-4f15-9451-3b9a8aa67aa7",
+          "name": "Login as Citizen (wrong role)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ea437b9e-5399-4360-af00-fd7469f0c8c1",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d964c773-6bca-482f-bf16-eb80682e03f8",
+          "name": "Pending Reports as Citizen (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "pending"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c261bf58-828b-4609-ab41-c2105ad74850",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b068a21f-523d-4949-bc08-f470f7ab36ca",
+          "name": "Assign Report as Citizen (403)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operator/reports/{{new_report_id}}/assign",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operator",
+                "reports",
+                "{{new_report_id}}",
+                "assign"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8ad36220-f9c8-4cd9-b2b2-b55feb8483bf",
+                "exec": [
+                  "pm.test('Status 403 citizen cannot assign', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4008d8c2-a9c1-4666-bdff-5159c4ab6616",
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "faf0307c-7e02-47ab-bf40-6b1bba986ba1",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "782766a1-846f-423e-9038-c0172c7334a9",
+      "name": "Messaging",
+      "item": [
+        {
+          "id": "f7aa043e-a469-440b-8364-c1c1930b86e9",
+          "name": "Login as Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{operator_email}}\",\n  \"password\": \"{{operator_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "bc803818-4924-41c4-b3c5-f04fe03037ed",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "cd21f41a-9c25-4428-8de2-394d3da78916",
+          "name": "Operator Sends Message to Reporter",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}",
+                "messages"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"The issue has been resolved. Please let us know if any problems remain.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9aa57e51-6e4e-46be-ac8e-6083119632c3",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const m = pm.response.json();",
+                  "pm.test('has id', () => pm.expect(m.id).to.be.a('number'));",
+                  "pm.test('body matches', () => pm.expect(m.body).to.be.a('string').with.length.above(0));",
+                  "pm.test('has sender object', () => pm.expect(m.sender).to.be.an('object'));",
+                  "pm.environment.set('message_id', m.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a4a0a3f-8e0a-437e-b149-e069b7f4fbf0",
+          "name": "Login as Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "285557d2-d0f1-435f-92a4-e74b3cdebd9d",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a06f41ca-2c55-487a-a0c8-a24bc6980b31",
+          "name": "Citizen Lists Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}",
+                "messages"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "bb79e09c-4696-4e99-bbbc-4a74f3a714d5",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const msgs = pm.response.json();",
+                  "pm.test('is array with messages', () => pm.expect(msgs).to.be.an('array').with.length.above(0));",
+                  "pm.test('operator message visible', () => pm.expect(msgs.some(m => m.id === parseInt(pm.environment.get('message_id')))).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4cf0f281-8d2f-4024-b5d3-543d55054dea",
+          "name": "Citizen Replies to Operator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}",
+                "messages"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Thank you, the issue looks resolved from my end.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "679276ba-9196-400b-81e7-410ab5548f3f",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const m = pm.response.json();",
+                  "pm.test('body stored correctly', () => pm.expect(m.body).to.eql('Thank you, the issue looks resolved from my end.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9ac8bbca-2414-45de-9bc9-2308c48b3839",
+          "name": "Send Empty Message (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}",
+                "messages"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c56e2acf-d1a9-45bd-8976-0526126f7e0c",
+                "exec": [
+                  "pm.test('Status 400 for empty body', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9ce9174e-b048-49fc-adb8-f7907a9b2484",
+          "name": "Logout Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "43d10392-5191-43d7-a5c5-eb89a74ac92a",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "413dce33-dcb8-4b82-9131-1f2e015d64dc",
+          "name": "List Messages Unauthenticated (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/{{new_report_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{new_report_id}}",
+                "messages"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3b7c5b50-bab8-42bc-aa2d-39a686f038f4",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9ec78ed1-4eb8-413d-b714-03ff3649bb4c",
+      "name": "Users and Notifications",
+      "item": [
+        {
+          "id": "e1c34683-92fc-4361-8d9a-c1c305e55bf8",
+          "name": "Login as Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e652b5ac-96e3-4ac3-8dea-2be8c5084ce6",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4142d3ac-702c-47be-9f98-d5500597b2f6",
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9338a76e-c37f-46d9-88f3-26762fae668a",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json();",
+                  "pm.test('has id username email role', () => { pm.expect(u.id).to.be.a('number'); pm.expect(u.username).to.be.a('string'); pm.expect(u.email).to.be.a('string'); pm.expect(u.role).to.be.a('string'); });",
+                  "pm.test('is_active true', () => pm.expect(u.is_active).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "0f088424-7beb-4032-83dc-e47179a71929",
+          "name": "Update Profile Email Notifications Preference",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_notifications_enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "941dea51-ef8a-4bde-a76c-c864ce27c084",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('email_notifications_enabled true', () => pm.expect(pm.response.json().email_notifications_enabled).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5b96bfd0-0ad8-4527-9a8f-106df2a86c88",
+          "name": "List My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "notifications"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e118d428-c414-458b-b67d-ad3e8c2011ee",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const notifs = pm.response.json();",
+                  "pm.test('is array', () => pm.expect(notifs).to.be.an('array'));",
+                  "pm.test('at least one notification from operator workflow', () => pm.expect(notifs.length).to.be.above(0));",
+                  "pm.test('each notification has required fields', () => notifs.forEach(n => { pm.expect(n.id).to.be.a('number'); pm.expect(n.type).to.be.a('string'); pm.expect(n).to.have.property('is_read'); }));",
+                  "const unread = notifs.find(n => !n.is_read);",
+                  "if (unread) pm.environment.set('notification_id', unread.id);",
+                  "else pm.environment.set('notification_id', notifs[0] ? notifs[0].id : '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "52e758fe-e871-4f96-802a-b60248637bbf",
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me/notifications/{{notification_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "notifications",
+                "{{notification_id}}",
+                "read"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "5b00341b-d36b-4650-92fc-c10b3fc64899",
+                "exec": [
+                  "if (!pm.environment.get('notification_id')) { pm.test('no notification available (skipped)', () => true); return; }",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const n = pm.response.json();",
+                  "pm.test('is_read true', () => pm.expect(n.is_read).to.be.true);",
+                  "pm.test('id matches', () => pm.expect(n.id).to.eql(parseInt(pm.environment.get('notification_id'))));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "faf17d37-9fdd-4555-a532-f456ac4234b1",
+          "name": "Mark Nonexistent Notification (404)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me/notifications/{{nonexistent_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "notifications",
+                "{{nonexistent_id}}",
+                "read"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "7a03f370-f453-4e86-9684-2ef566133dc6",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b93db992-934b-44bc-be9c-8b02d964e9c6",
+          "name": "My Reports List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "reports"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "5304974b-556d-4e22-827b-f53ceca2cecf",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5595c6fb-45d7-456e-bbd2-34915a99d903",
+          "name": "Logout Citizen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "576843af-ef40-42d2-9dd4-90288d1c3a7c",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "72a8f9e9-33d4-4f85-91e2-c43c546ba945",
+          "name": "Get Profile Unauthenticated (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "33fe004d-d54c-49b8-8839-1adac891b4ee",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0df85515-cf81-4342-baf0-5ad7db6f6345",
+      "name": "Admin",
+      "item": [
+        {
+          "id": "268a37ba-97b5-457b-95e0-3b8abb69f525",
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "278765a4-f937-4615-98ee-636cf32dc7f5",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a67c198-cc2e-4cd6-a88d-a1a3c69600c6",
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "fba11e7f-8f80-46cd-8964-50cee0a7fc00",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const users = pm.response.json();",
+                  "pm.test('is non-empty array', () => pm.expect(users).to.be.an('array').with.length.above(0));",
+                  "pm.test('each user has id username role', () => users.forEach(u => { pm.expect(u.id).to.be.a('number'); pm.expect(u.username).to.be.a('string'); pm.expect(u.role).to.be.a('string'); }));",
+                  "pm.test('seeded admin present', () => pm.expect(users.some(u => u.email === pm.environment.get('admin_email'))).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "8356c345-7b84-4092-bbe4-178676945965",
+          "name": "Admin Create Operator User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{new_op_username}}\",\n  \"first_name\": \"NewOp\",\n  \"last_name\": \"User\",\n  \"email\": \"{{new_op_email}}\",\n  \"password\": \"Operator99!\",\n  \"role\": \"operator\",\n  \"category_id\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "77875e6d-378b-4e37-befb-b12d7d479c18",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set('new_op_username', 'op_' + ts);",
+                  "pm.environment.set('new_op_email', 'op_' + ts + '@test.example');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "405c6a91-b916-4021-a64a-79d071ee9ee9",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const u = pm.response.json();",
+                  "pm.test('role is operator', () => pm.expect(u.role).to.eql('operator'));",
+                  "pm.test('category_id is 7', () => pm.expect(u.category_id).to.eql(7));",
+                  "pm.test('is_active true', () => pm.expect(u.is_active).to.be.true);",
+                  "pm.environment.set('admin_created_user_id', u.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5a397c52-3dbe-4b70-a5bf-d17e5e950963",
+          "name": "Admin Update User to Inactive",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{admin_created_user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{admin_created_user_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "b49305d8-a82e-4c64-ba7f-602a077e2e14",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is_active false', () => pm.expect(pm.response.json().is_active).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "93363253-81e1-4407-89ea-b071abf0b8d3",
+          "name": "Admin Update Nonexistent User (404)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{nonexistent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{nonexistent_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ghost\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "00a02591-6dd6-448f-9129-ab0efbd64e9c",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a17ae739-5876-467e-8910-f78efc18b288",
+          "name": "Admin Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d2f92c98-1122-47d4-a475-6171b0938bbc",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is object', () => pm.expect(pm.response.json()).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "7b9d90f6-17dc-412b-8927-d8483b2da1dd",
+          "name": "Login as Citizen (wrong role for admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{citizen_email}}\",\n  \"password\": \"{{citizen_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "30077552-a790-4351-8328-6372f1a9531b",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('message is Logged in', () => pm.expect(b.message).to.eql('Logged in.'));",
+                  "pm.test('user object returned', () => pm.expect(b.user).to.be.an('object'));",
+                  "pm.test('user has id and role', () => { pm.expect(b.user.id).to.be.a('number'); pm.expect(b.user.role).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "7eb36a3f-2acd-43cb-9849-07946fed3793",
+          "name": "List Users as Citizen (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d41f6cee-6376-4a19-baa8-78fb811065c9",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "e6e65763-2afc-473e-a4de-3afddca5eb9f",
+          "name": "Admin Stats as Citizen (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "19a3ad35-42a7-41f2-8a50-41a0dd860399",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "e07eb5f6-6fbf-4dd3-96a2-a7be25312ceb",
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "11afc5c0-ee2e-41ba-818c-cc95538e400a",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out.'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c8f7168a-096f-4eff-9f10-26827b9408aa",
+      "name": "Statistics",
+      "item": [
+        {
+          "id": "f62328eb-a488-4898-82af-5eb7d7e18c2e",
+          "name": "Public Statistics (default granularity)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stats/public",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats",
+                "public"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "744c3292-a090-4b1c-84a9-47644f876954",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is object', () => pm.expect(pm.response.json()).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6e5e396e-3c43-485c-b324-1c77463f247e",
+          "name": "Public Statistics (week granularity)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stats/public?granularity=week",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats",
+                "public"
+              ],
+              "query": [
+                {
+                  "key": "granularity",
+                  "value": "week"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "348c51b8-b5e5-44d3-a775-088ea28bd138",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "40f36086-7509-4e14-ae57-1dd2f5e7961e",
+          "name": "Public Statistics (month granularity)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stats/public?granularity=month",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats",
+                "public"
+              ],
+              "query": [
+                {
+                  "key": "granularity",
+                  "value": "month"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f855609c-9278-4cbc-8500-b41df0017841",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "9d41f3c0-fea8-4906-bbab-5bdf301bdd24",
+          "name": "Public Statistics Unknown Granularity (200 default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stats/public?granularity=decade",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats",
+                "public"
+              ],
+              "query": [
+                {
+                  "key": "granularity",
+                  "value": "decade"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "041fdb20-000e-4ef5-8f8c-c0be7b2115fc",
+                "exec": [
+                  "pm.test('Status 200 unknown granularity falls back to default', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "10827419-dc36-499e-951e-ff2a6a6291e5",
+          "name": "Admin Stats Unauthenticated (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "2b85ac55-3818-4a44-a8ab-53f1bc6da6bb",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
